@@ -6,3 +6,4 @@ python-dotenv==1.0.0
 aiohttp
 asyncio
 nest_asyncio
+aiofiles
