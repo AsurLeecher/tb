@@ -1,5 +1,5 @@
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import ParseMode
+from aiogram import types
 from aiogram.utils import executor
 import logging
 import os
