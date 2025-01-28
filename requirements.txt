@@ -8,5 +8,4 @@ asyncio
 nest_asyncio
 aiofiles
 telebot
-pyTelegramBotAPI
 aiogram
