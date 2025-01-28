@@ -8,6 +8,8 @@ import aiohttp
 import logging
 import nest_asyncio
 from dotenv import load_dotenv
+import signal
+import sys
 
 # Load environment variables
 load_dotenv()
@@ -113,22 +115,36 @@ async def upload_to_channel(file_path, filename):
 def start_polling():
     bot.polling(none_stop=True, interval=1, timeout=60)
 
+def run_flask():
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+
+def signal_handler(sig, frame):
+    logging.info("Shutting down gracefully...")
+    bot.stop_polling()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(telethon_client.disconnect())
+    sys.exit(0)
+
 if __name__ == "__main__":
-    def run_flask():
-        app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
     # Start the Flask server in a separate thread
-    flask_thread = Thread(target=run_flask)
+    flask_thread = Thread(target=run_flask, daemon=True)
     flask_thread.start()
-
-    # Start bot polling in a separate thread to avoid blocking asyncio
-    polling_thread = Thread(target=start_polling)
-    polling_thread.start()
 
     # Run the event loop for the Telethon client
     loop = asyncio.get_event_loop()
     try:
         loop.run_until_complete(telethon_client.start(bot_token=BOT_TOKEN))
         logging.info("Bot is running...")
+
+        # Start bot polling in a separate thread
+        polling_thread = Thread(target=start_polling, daemon=True)
+        polling_thread.start()
+
+        # Keep the main thread alive
+        while True:
+            pass
     except Exception as e:
         logging.error(f"Error starting bot: {str(e)}")
