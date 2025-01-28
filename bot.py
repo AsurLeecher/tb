@@ -121,15 +121,14 @@ if __name__ == "__main__":
     flask_thread = Thread(target=run_flask)
     flask_thread.start()
 
+    # Start bot polling in a separate thread to avoid blocking asyncio
+    polling_thread = Thread(target=start_polling)
+    polling_thread.start()
+
     # Run the event loop for the Telethon client
     loop = asyncio.get_event_loop()
     try:
         loop.run_until_complete(telethon_client.start(bot_token=BOT_TOKEN))
         logging.info("Bot is running...")
-
-        # Start bot polling in a separate thread
-        polling_thread = Thread(target=start_polling)
-        polling_thread.start()
-
     except Exception as e:
         logging.error(f"Error starting bot: {str(e)}")
