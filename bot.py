@@ -1,6 +1,6 @@
 from aiogram import Bot, Dispatcher, types
-from aiogram import types
-from aiogram.utils import executor
+from aiogram.types import ParseMode
+from aiogram import F
 import logging
 import os
 from dotenv import load_dotenv
@@ -70,6 +70,7 @@ async def on_startup():
     await telethon_client.start(bot_token=BOT_TOKEN)
 
 if __name__ == "__main__":
-    # Start the bot
-    from aiogram import executor
-    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
+    # Use Dispatcher.start_polling() instead of executor
+    import asyncio
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(dp.start_polling())
